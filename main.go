@@ -9,6 +9,7 @@ import (
 	"github.com/joho/godotenv"
 	"database/sql"
 	_ "github.com/lib/pq"
+	"github.com/UprightBiswa/go-gin-railway/firebase"
 )
 
 func main() {
@@ -37,6 +38,9 @@ func main() {
 		log.Fatal("Database unreachable:", err)
 	}
 
+	// ✅ Initialize Firebase
+	firebase.InitFirebase()
+
 	// Gin router
 	r := gin.Default()
 
@@ -52,6 +56,14 @@ func main() {
 			return
 		}
 		c.JSON(200, gin.H{"current_time": now})
+	})
+
+	r.GET("/firebase-status", func(c *gin.Context) {
+		if firebase.FirebaseApp != nil {
+			c.JSON(200, gin.H{"firebase": "initialized ✅"})
+		} else {
+			c.JSON(500, gin.H{"firebase": "not initialized ❌"})
+		}
 	})
 
 	r.Run(":" + port)
